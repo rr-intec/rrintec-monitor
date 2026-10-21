@@ -23,7 +23,7 @@ while IFS='|' read -r nombre url; do
   codigo=000
   for intento in 1 2; do
     extra=(); case "$url" in *supabase*) extra=(-H "apikey: ${SUPABASE_ANON_KEY}");; esac
-    codigo=$(curl -s -o /dev/null -L --max-time 20 -w '%{http_code}' "${extra[@]}" "$url" || true)
+    codigo=$(curl -s -o /dev/null -L --max-time 20 -w '%{http_code}' ${extra[@]+"${extra[@]}"} "$url" || true)
     if [ "$codigo" -ge 200 ] 2>/dev/null && [ "$codigo" -lt 500 ]; then codigo=ok; break; fi
     sleep 15
   done
