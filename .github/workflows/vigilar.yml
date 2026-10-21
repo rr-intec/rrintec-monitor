@@ -1,0 +1,39 @@
+name: Vigilar sitios
+on:
+  schedule:
+    - cron: "*/5 * * * *"
+  workflow_dispatch:
+    inputs:
+      prueba:
+        description: "Enviar un mensaje de prueba a Telegram"
+        type: boolean
+        default: false
+concurrency:
+  group: vigilar
+  cancel-in-progress: false
+permissions:
+  contents: read
+jobs:
+  vigilar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/cache/restore@v4
+        with:
+          path: estado
+          key: estado-${{ github.run_id }}
+          restore-keys: estado-
+      - name: Revisar
+        env:
+          SITIOS: ${{ secrets.SITIOS }}
+          TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+          PRUEBA: ${{ inputs.prueba || 'false' }}
+        run: ./vigilar.sh
+      - uses: actions/cache/save@v4
+        if: always()
+        with:
+          path: estado
+          key: estado-${{ github.run_id }}

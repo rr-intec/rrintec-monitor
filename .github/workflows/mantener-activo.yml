@@ -1,0 +1,19 @@
+name: Mantener activo
+# GitHub apaga los workflows programados de un repo público tras 60 días sin actividad.
+on:
+  schedule:
+    - cron: "0 12 1 * *"
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  latido:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: |
+          date -u +%F > ultimo-latido.txt
+          git config user.name "rrintec-monitor"
+          git config user.email "monitor@users.noreply.github.com"
+          git add ultimo-latido.txt
+          git commit -m "Latido mensual del monitor" && git push || true
